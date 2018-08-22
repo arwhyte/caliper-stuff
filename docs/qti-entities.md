@@ -190,10 +190,11 @@ require implementors to generate a UUID for its value.
 }
 ```
 
-### III. Caliper QTI JSON-LD context (partial: AssessmentResult-related terms only)
+### III. Caliper QTI JSON-LD context (AssessmentResult-related terms only)
 
-QTI features an extensive vocabulary.  The JSON-LD context below is partial in scope and only 
-maps terms to IRIs that are associated with a QTI `AssessmentResult`.
+QTI features an extensive vocabulary.  The JSON-LD context below is partial in scope and only
+maps terms to IRIs that are associated with a QTI `AssessmentResult`.  It's purpose is to 
+illustrate how QTI terms would be described in a JSON-LD context document.  
 
 Note: QTI entities, object properties, data properties and enumerated constants are included.
 
