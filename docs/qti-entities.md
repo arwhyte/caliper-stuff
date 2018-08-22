@@ -1,22 +1,29 @@
-## Proposal
-## Caliper QTI entity mixins
+# Proposal: Caliper QTI entity mixins
 
-I’ve been rethinking the current approach of attempting to add coarse-grained Caliper “QTI” 
-entities to the Caliper spec.   I now consider it a mistake to add entities that are nothing more than pale reflections of entities that are fully described in the QTI spec.  Such constructions end up satisfying no one.  I’ve mentioned my misgivings on the last couple of Caliper calls along with a proposal that I consider a better approach.
+I’ve been rethinking the current approach of attempting to add coarse-grained Caliper “QTI” entities to the Caliper spec.   I now consider it a mistake to add entities that are nothing more than pale reflections of entities that are fully described in the QTI spec.  Such constructions end up satisfying no one.  I’ve mentioned my misgivings on the last couple of Caliper calls along with a proposal that I consider a better approach.
 
-I propose that we do the following.  Instead of adding what I call faux QTI Entities to the Caliper vocabulary along with a few cherry-picked QTI properties I recommend that we embrace fully JSON-LD’s vocabulary mixin capabilities and express QTI Entities as JSON in all their glory and complexity.  Below you will find a QTI AssessmentResult expressed as a JSON-LD document.  I encountered only one issue in this bit of work, representing a QTI Value object’s value string property.  
+I propose that we do the following.  Instead of adding what I call faux QTI Entities to the Caliper vocabulary along with a few cherry-picked QTI properties I recommend that we embrace fully JSON-LD’s vocabulary mixin capabilities and express QTI Entities as JSON in all their glory and complexity.  Below you will find a QTI `AssessmentResult` expressed as a JSON-LD document.  I encountered only one issue in this bit of work, representing a QTI Value object’s value string property.
 
-More particularly, we do this: 
+I believe this vocabulary “mixin” strategy is preferable to what we've attempted to model to date
+ with respect to QTI.  Indeed, I believe Caliper should consider adopting this approach for all entities we might choose to represent that are more fully described in sibling specifications (e.g., LTI Deep Linking, Open Badges).   
 
-1) We create a Caliper QTI JSON-LD context that maps all relevant QTI terms to a namespaced QTI IRI in format prescribed in spec central.  In this way we can drop into a Caliper Event native QTI entities.  See the example below which draws its terms from the QTI Results Reporting Information Model, v2p2.  This approach avoids mixing Caliper with QTI terms, avoiding term collisions, etc.
+More particularly, in the case of QTI, we do this: 
 
-2) QTI entities (Assessment, AssessmentPart, AssessmentSection, AssessmentResult, etc.) that are described in a Caliper event will each reference the QTI remote context directly (i.e., “@context”: "https://purl.imsglobal.org/spec/qti/v2p2/context/“).  Doing so will override the Caliper Event context and protect QTI term mappings from being overwritten by Caliper mappings if a JSON-LD parser is used to transform the event.  See the example AssessmentResult below.
+1. We create a Caliper QTI JSON-LD context that maps all relevant QTI terms to a namespaced QTI IRI in format prescribed in spec central.  In this way we can drop into a Caliper Event native QTI entities.  See III below which draws its terms from the QTI Results Reporting Information Model, v2p2.  This approach avoids mixing Caliper with QTI terms, avoiding term collisions, etc.
 
-3) QTI entities expressed as JSON will be provisioned with @context, id and type properties (the latter two properties will be aliased as @id and @type in the Caliper QTI JSON-LD context).  No other Caliper terms will be added unless a need is determined to do so.  Otherwise, each QTI entity will be provisioned with properties as defined in the relevant QTI spec document.  Each QTI property referenced will be mapped as a term in the Caliper QTI JSON-LD context.
+2. QTI entities (`Assessment`, `AssessmentPart`, `AssessmentSection`, `AssessmentResult`, etc.) that are 
+described in a Caliper event will each reference the QTI remote context directly (i.e., “@context”: "https://purl.imsglobal.org/spec/qti/v2p2/context/“).  Doing so will override the Caliper Event context and protect QTI term mappings from being overwritten by Caliper mappings if a JSON-LD parser is used to transform the event.  See I and II below which provides a roughed-in Caliper `AssessmentItemEvent` that references two QTI entities and as well as mock up of an QTI `AssessmentResult` expressed as JSON-LD.
 
-4) In cases where the id property is considered artificial or unnecessary we can either 1) exclude it or 2) require implementors to generate a UUID for its value.
+3. QTI entities expressed as JSON will be provisioned with @context, id and type properties (the latter two properties will be aliased as @id and @type in the Caliper QTI JSON-LD context).  No other Caliper terms will be added unless a need is determined to do so.  Otherwise, each QTI entity  will be provisioned with properties as defined in the relevant QTI spec document.  Each QTI property referenced will be mapped as a term in the Caliper QTI JSON-LD context.
 
-In the following skeletal example both the object of the interaction and the generated entity are both entities whose terms are mapped to QTI IRIs as described in the remote https://purl.imsglobal.org/spec/qti/v2p2/context/.  All other terms are mapped to the Caliper remote context.
+4. In cases where the id property is considered artificial or unnecessary we can either 1) exclude it or 2) require implementors to generate a UUID for its value.
+
+### I. Skeletal Caliper Event illustrating QTI vocabulary mixins
+
+In the following skeletal example both the object of the interaction and the generated entity are
+ both entities whose terms are mapped to QTI IRIs as described in the remote https://purl
+ .imsglobal.org/spec/qti/v2p2/context/.  The QTI JSON objects are themselves modeled directly on 
+ QTI XML representations.  All other terms are mapped to the Caliper remote context.
 
 ```
 {
@@ -25,49 +32,49 @@ In the following skeletal example both the object of the interaction and the gen
   "type": "AssessmentItemEvent",
   "actor": {
     "id": "https://example.edu/users/554433",
-    "type": “Person”                                                                              <— Caliper Entity
+    "type": “Person”                                               <— Caliper Entity
   },
   "action": “Submitted",
   "object": {
     "@context": "https://purl.imsglobal.org/spec/qti/v2p2/context/",
     "id": “UUID",
-    "type": “AssessmentItem”,                                                                <— QTI Entity
+    "type": “AssessmentItem”,                                      <— QTI Entity
     "identifer": "A QTI identifier”,
     . . . other QTI properties
   },
   "generated": {
     "@context": "https://purl.imsglobal.org/spec/qti/v2p2/context/",
     "id": "UUID",
-    "type": “ItemResult”,                                                                          <— QTI Entity
+    "type": “ItemResult”,                                           <— QTI Entity
     "identifer": "A QTI identifier”,  
      . . . other QTI properties
   },
   "eventTime": "2016-11-15T10:15:12.000Z",
   "edApp": {
     "id": "https://example.edu",
-    "type": "SoftwareApplication”                                                            <— A Caliper Entity
+    "type": "SoftwareApplication”                                   <— A Caliper Entity
   },
   "group": {
     "id": "https://example.edu/terms/201601/courses/7/sections/1",
-    "type": “CourseSection”                                                                     <— A Caliper Entity
+    "type": “CourseSection”                                         <— A Caliper Entity
   },
   "membership": {
     "id": "https://example.edu/terms/201601/courses/7/sections/1/rosters/1",
-    "type": “Membership"                                                                        <— A Caliper Entity
+    "type": “Membership"                                            <— A Caliper Entity
   },
   "session": {
     "id": "https://example.edu/sessions/1f6442a482de72ea6ad134943812bff564a76259",
-    "type": “Session”                                                                                <— A Caliper Entity
+    "type": “Session”                                               <— A Caliper Entity
 
   }
 }
 ```
 
-I believe this vocabulary “mixin” strategy is preferable to what I’ve attempted to do to date.  Indeed, I believe Caliper should adopt this approach for all entities we might choose to represent that are more fully described in sibling specifications (e.g., LTI Deep Linking, Open Badges).  
+### II. Caliper QTI AssessmentResult entity mock-up
 
-Let me know what you think.  If you agree I will post it to the QTI list for people to discuss at the Quarterly Meeting.
-
-Example Entity:  AssessmentResult
+Below is a mock up of a QTI `AssessmentResult` expressed as JSON-LD.  As noted above in cases 
+where the id property is considered artificial or unnecessary we can either 1) exclude it or 2) 
+require implementors to generate a UUID for its value.
 
 ```
 {
@@ -183,9 +190,12 @@ Example Entity:  AssessmentResult
 }
 ```
 
-Example: Caliper QTI JSON-LD context (AssessmentResult-related terms only)
+### III. Caliper QTI JSON-LD context (partial: AssessmentResult-related terms only)
 
-Note: Entities, Object Properties, Data Properties and enumerated constants are included.
+QTI features an extensive vocabulary.  The JSON-LD context below is partial in scope and only 
+maps terms to IRIs that are associated with a QTI `AssessmentResult`.
+
+Note: QTI entities, object properties, data properties and enumerated constants are included.
 
 ```
 {
@@ -233,7 +243,8 @@ Note: Entities, Object Properties, Data Properties and enumerated constants are 
     "sourcedId": {"@id": "qti:sourcedId", "@type": "xsd:string"},
     "view": {"@id": "qti:view", "@type": "@vocab"},
 
-    "valueValue": {"@id": "qti:valueValue", "@type": "xsd:string”},  <— Need a field to hold the value if Value is a {}
+    "valueValue": {"@id": "qti:valueValue", "@type": "xsd:string”},  <— Hack.  Need a field to hold
+     the value if Value is a {}
 
     "multiple": "qti:multiple",
     "ordered": "qti:ordered",
