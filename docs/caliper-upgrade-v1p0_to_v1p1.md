@@ -164,6 +164,7 @@ Employment of custom terms should be accompanied by the creation of a JSON-LD Co
 
 The Kaltura "Still Watching" Caliper 1.1 `MediaEvent` would reference an array of JSON-LD Contexts:
 
+```
 {
   "@context": ["https://corp.kaltura.com/caliper/ctx/v1p1", "http://purl.imsglobal.org/ctx/caliper/v1p1"],
   "@type": "MediaEvent",
@@ -171,6 +172,7 @@ The Kaltura "Still Watching" Caliper 1.1 `MediaEvent` would reference an array o
   "action": "StillWatching",
   . . .
 }
+```
 
 The rules governing JSON-LD `@context` keyword usage are described in more detail in the Caliper Analytics® Specification, version 1.1, [section 4.1](https://github.com/IMSGlobal/caliper-spec/blob/master/caliper-spec.md#41-json-ld-context).
 
@@ -286,7 +288,7 @@ The Caliper 1.1 [Envelope](#envelope) includes a required `dataVersion` property
 ```
 
 ### A.2 Kaltura Caliper 1.1 MediaEvent (Resumed)
-Note: if this `MediaEvent` is generated as result of an earlier LTI Launch, it should at a minimum also reference the `MediaEvent.federatedSession<LtiSession>` and include relevant `LtiSession.messageParameters`.
+Note: if this `MediaEvent` is generated as result of an earlier LTI Launch, it should at a minimum also reference the `MediaEvent.federatedSession<LtiSession>` and include relevant `LtiSession.messageParameters`.  If the `kaf.course_id` can be mapped to an IRI (including a URN) `MediaEvent.group` should be added.  If the `actor` can be associated with a `Group` (e.g., course) and a role (e.g., "Learner"), `MediaEvent.membership` should be added.
 
 ```
 {
@@ -400,9 +402,10 @@ Note: if this `MediaEvent` is generated as result of an earlier LTI Launch, it s
   "membership": null,
   "federatedSession": null
 }
+```
 
 ### A.4 Kaltura non-standard Caliper 1.1 MediaEvent (StillWatching)
-Note: if this `MediaEvent` is generated as result of an earlier LTI Launch, it should at a minimum also reference the `MediaEvent.federatedSession<LtiSession>` and include relevant `LtiSession.messageParameters`.
+Note: if this `MediaEvent` is generated as result of an earlier LTI Launch, it should at a minimum also reference the `MediaEvent.federatedSession<LtiSession>` and include relevant `LtiSession.messageParameters`.  If the `kaf.course_id` can be mapped to an IRI (including a URN) `MediaEvent.group` should be added.  If the `actor` can be associated with a `Group` (e.g., course) and a role (e.g., "Learner"), `MediaEvent.membership` should be added.
 
 ```
 {
