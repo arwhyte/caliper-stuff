@@ -44,7 +44,7 @@ A terse listing of TODOs. See section 3.0 below for detailed requirements.
 * Employment of non-Caliper terms should be accompanied by reference to one or more non-Caliper JSON-LD contexts in order to ensure that all terms referenced in a Caliper JSON-LD document are properly mapped to IRIs.
 * Apply "thinning" rules to `Event` and `Entity` object representations (required).
   - Drop `Entity.@context` if the JSON-LD Context property value duplicates the enclosing `Event` context.
-  - Express object property values either as a JSON object or as JSON string that corresponds to the object's IRI.
+  - Express object property values either as a JSON object or as a JSON string that corresponds to the object's IRI.
   - Terms assigned as property values MUST be expressed using the Context property key _not_ the IRI value.
 
 
@@ -149,7 +149,7 @@ Each Caliper `Event` emitted by an event producer MUST include a `@context` prop
 
 If non-standard vocabulary is employed in a Caliper `Event` or `Entity` describe the terms SHOULD be mapped to an institutional or vendor namespaced JSON-LD Context document that is accessible to Caliper event consumers over HTTP.
 
-For example, the [Kaltura](https://corp.kaltura.com/) platform emits a Caliper 1.0 `MediaEvent` employing a custom, "Still Watching" action. The "Still Watching" action is a non-standard extension of the Caliper 1.0/1.1 action vocabulary.  Currently, the action is not mapped to an IRI via a JSON-LD Context. Since no term to IRI mapping exists, a JSON-LD parser that applies a processing algorithm to the Kaltura a "Still Watching" `MediaEvent` JSON-LD document will be forced to ignore the action value.
+For example, the [Kaltura](https://corp.kaltura.com/) platform emits a Caliper 1.0 `MediaEvent` employing a custom, "StillWatching" action. The "StillWatching" action is a non-standard extension of the Caliper 1.0/1.1 action vocabulary.  Currently, the action is not mapped to an IRI via a JSON-LD Context. Since no term to IRI mapping exists, a JSON-LD parser that applies a processing algorithm to the Kaltura a "StillWatching" `MediaEvent` JSON-LD document will be forced to ignore the action value.
 
 Employment of custom terms should be accompanied by the creation of a JSON-LD Context that maps each custom term employed to an IRI. A Kaltura JSON-LD Context might resemble the following document:
 
@@ -162,7 +162,7 @@ Employment of custom terms should be accompanied by the creation of a JSON-LD Co
 }
 ```
 
-The Kaltura "Still Watching" Caliper 1.1 `MediaEvent` would reference an array of JSON-LD Contexts:
+The Kaltura "StillWatching" Caliper 1.1 `MediaEvent` would reference an array of JSON-LD Contexts:
 
 ```
 {
@@ -200,7 +200,7 @@ The Caliper Technical Working Group provides Caliper 1.1 reference implementatio
 
 Examples of Caliper 1.0 and 1.1 events that illustrate the move to a more compact representation of events and entities are included below.
 
-### 3.5.3 Caliper 1.1 Envelope
+### 3.5.3 Envelope
 Caliper 1.1 `Event` and `Entity` data MUST be transmitted inside a Caliper `Envelope`, a purpose-built JSON data structure that includes metadata about the emitting `Sensor` and the data payload.
 
 The Caliper 1.1 [Envelope](#envelope) includes a required `dataVersion` property, the string value for which MUST be set to the Caliper JSON-LD Context IRI:
