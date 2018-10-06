@@ -1,6 +1,8 @@
 # Caliper 1.0 to 1.1 Upgrade Notes
 
-This document focuses on the steps required to updating _existing_ Caliper 1.0 event streams to Caliper 1.1.
+This document focuses on the steps required to update a Caliper 1.0 `Event` and/or `Entity` describe JSON-LD document to Caliper 1.1.
+
+The document provides an overview of Caliper 1.1 changes that impact Caliper 1.0 implementations.  The information provided neither supercedes nor is a substitute for either the [Caliper Analytics® Specification, version 1.1](https://github.com/IMSGlobal/caliper-spec/blob/master/caliper-spec.md) or the [Caliper Analytics® Sensor Certification Guide](https://github.com/IMSGlobal/caliper-cert-guide).  Gaining a thorough understanding of the IMS Caliper 1.1 doc set should be considered a prerequisite before considering upgrading from 1.0 to 1.1.
 
 ## 1.0 Terminology
 
@@ -14,10 +16,107 @@ This document focuses on the steps required to updating _existing_ Caliper 1.0 e
 
 <a name="uuidDef"></a>__UUID__: a 128-bit identifier that does not require a registration authority to assure uniqueness.  However, absolute uniqueness is not guaranteed although the collision probability is considered extremely low. Caliper recommends use of randomly or pseudo-randomly generated version 4 UUIDs.  Each Caliper [Event](#event) MUST be assigned a UUID that is expressed as a [URN](#urnDef) using the form `urn:uuid:<UUID>` as described in [RFC 4122](#rfc4122).
 
-## 2.0 Caliper 1.1 JSON-LD Context
+## 2.0 Cheatsheet
+A terse listing of TODOs. See section 3.0 below for detailed requirements.
+
+### 2.1 `Event`
+* Add `id` property. Set value to `urn:uuid:\<UUID\> (required).
+* Change `@type` property to `type` (required).
+* Change `action` property value from IRI to term (required).
+* Ensure `eventTime` property value is ISO 8601 compliant, expressed with millisecond precision, and set to UTC with no offset specified.
+* Add optional `referrer` property if relevant.
+* Add optional `session` property if relevant.
+* Change optional `federatedSession` property value type to `LtiSession`.
+* Add optional `extensions` map if relevant.
+
+### 2.2 `Entity`
+* Change `@id` to `id` (required).
+* Change `@type` to `type`; change property value from IRI to term (required).
+* Ensure that all date/time property values are ISO 8601 compliant, expressed with millisecond precision, and set to UTC with no offset specified.
+* Ensure that all time interval property values (e.g., `duration`, `currentTime`) are formatted as an ISO 8601 duration.
+* Implement all other relevant property additions and deprecations as detailed in the [Caliper Analytics® Specification, version 1.1](https://github.com/IMSGlobal/caliper-spec/blob/master/caliper-spec.md).
+
+### 2.3 `Envelope`
+* Add `dataVersion` property (required).
+
+### 2.4 Serialization
+* Each `Event` and `Entity` describe transmitted in a Caliper `Envelope` must reference the remote IMS Caliper 1.1 JSON-LD Context document.
+* Apply "thinning" rules to `Event` and `Entity` object representations (required).
+  - Drop `Entity.@context` if the JSON-LD Context property value duplicates the enclosing `Event` context.
+  - Express object property values either as a JSON object or as JSON string that corresponds to the object's IRI.
+  - Terms assigned as property values MUST be expressed using the Context property key _not_ the IRI value.
+
+## 3.0 Requirements
+This section focuses on Caliper 1.1 changes that impact existing Caliper 1.0 vocabulary only.  See the [Caliper Analytics® Specification, version 1.1](https://github.com/IMSGlobal/caliper-spec/blob/master/caliper-spec.md) for a discussion of new profiles, events, and entities.
+
+### 3.1 Event Model changes
+The following property additions and deprecations apply to all `Event` types.
+
+| Property | Type | Disposition | Description |
+| :------ | :-----| :----- | :---------- |
+| id | UUID | Required | Each [Event](#event) MUST be provisioned with a [UUID](#uuidDef).  The UUID MUST be expressed as a [URN](#urnDef) using the form `urn:uuid:<UUID>` per [RFC 4122](#rfc4122).  A version 4 [UUID](#uuidDef) is recommended. |
+| type | Term | Required | Replaces previous use of the [JSON-LD](#jsonldDef) `@type` keyword. The string value MUST be set to the corresponding [Term](#termDef) rather than the full [IRI](#iriDef), e.g. *MediaEvent*. |
+| ~~@type~~ | [IRI](#iriDef) | Deprecated | Replaced by `type`.  |
+| action | Term | Required | The string value MUST be set to the corresponding [Term](#termDef) rather than the full [IRI](#iriDef), e.g. *Started*. |
+| referrer | [Entity](#entity) &#124; [IRI](#iriDef) | Optional  | An [Entity](#entity) that represents the referring context. A [SoftwareApplication](#softwareApplication) or [DigitalResource](#digitalResource) will typically constitute the referring context.  The `referrer` value MUST be expressed either as an object or as a string corresponding to the referrer's [IRI](#iriDef). In the case of [NavigationEvent](#navigationEvent) `referrer` supersedes the deprecated `navigatedFrom` property.  |
+| ~~navigatedFrom~~ | [DigitalResource](#digitalResource), [SoftwareApplication](#softwareApplication) | Deprecated | The Caliper 1.0 `NavigationEvent` included a `navigatedFrom` property. It has been deprecated in favor of `referrer`. |
+| session | [Session](#session) &#124; [IRI](#iriDef) | Optional | The current user [Session](#session).  The `session` value MUST be expressed either as an object or as a string corresponding to the session's [IRI](#iriDef). |
+| federatedSession | [LtiSession](#ltiSession) &#124; [IRI](#iriDef) | Optional | Caliper 1.1 changed the value type to [LtiSession](#ltiSession), a sub type of [Session](#session) that includes an LTI-related `messageParameters` property. If the [Event](#event) occurs within the context of an [LTI](#ltiDef) tool launch, the actor's tool consumer [LtiSession](#ltiSession) MAY be referenced.  The `federatedSession` value MUST be expressed either as an object or as a string corresponding to the federatedSession's [IRI](#iriDef).  |
+| extensions | Object | Optional | A map of additional attributes not defined by the model MAY be specified for a more concise representation of the [Event](#event). |
+
+### 3.3 Entity Model changes
+The following property additions and deprecations apply to all `Entity` types.
+
+| Property | Type | Disposition | Description |
+| :------ | :-----| :----- | :---------- |
+| id | [IRI](#iriDef) | Required  | A valid [IRI](#iriDef) MUST be specified. The [IRI](#iriDef) MUST be unique and persistent. The [IRI](#iriDef) SHOULD also be dereferenceable, i.e., capable of returning a representation of the resource. A [URI](#uriDef) employing the [URN](#urnDef) scheme MAY be provided in cases where a [Linked Data](#linkedDataDef) friendly HTTP URI is either unavailable or inappropriate. |
+| ~~@id~~ | [IRI](#iriDef) | Deprecated  | Replaced by `id`. |
+| type  | [Term](#termDef) | Required | A string value corresponding to the [Term](#termDef) defined for the [Entity](#entity) in the external IMS Caliper JSON-LD [context](http://purl.imsglobal.org/ctx/caliper/v1p1) document.  For a generic [Entity](#entity) set the `type` value to the term *Entity*.  If a subtype of [Entity](#entity) is created, set the type to the [Term](#termDef) corresponding to the subtype utilized, e.g., *VideoObject*. |
+| ~~@type~~ | [IRI](#iriDef)  | Deprecated | Replaced by `type`. |
+
+#### 3.3.1 DigitalResource
+The following property additions and deprecations apply to all `DigitalResource` types, including `MediaObject`, `AudioObject`, `ImageObject`, and `VideoObject`.
+
+| Property | Type | Disposition | Description |
+| :------ | :-----| :----- | :---------- |
+| ~~alignedLearningObjective~~ | Array | Deprecated | Replaced by `LearningObjectives`. |
+| creators | Array | Optional | An ordered collection of [Agent](#agent) entities, typically of type [Person](#person), that are responsible for bringing resource into being.  Each array item MUST be expressed either as an object or as a string corresponding to the item's [IRI](#iriDef). |
+| learningObjectives | Array | Optional | Replaces the deprecated `alignedLearningObjective`. An ordered collection of one or more [LearningObjective](#learningobjective) entities that describe what a learner is expected to comprehend or accomplish after engaging with the resource.  Each array item MUST be expressed either as an object or as a string corresponding to the item's [IRI](#iriDef). |
+| mediaType | string | Optional | A string value drawn from the list of [IANA](https://www.iana.org/assignments/media-types/media-types.xhtml) approved media types and subtypes that identifies the file format of the resource. |
+| objectType | string | Deprecated | Use `type`. |
+
+#### 3.3.2 MediaLocation
+| Property | Type | Disposition | Description |
+| :------ | :-----| :----- | :---------- |
+| currentTime | Duration | Optional | A time interval or duration that represents the current playback position measured from the beginning of an [AudioObject](#audioObject) or [VideoObject](#videoObject).  If a `currentTime` is specified the value MUST take the form of an ISO 8601 formatted duration string. |
+
+#### 3.3.3 Session
+| Property | Type | Disposition | Description |
+| :------ | :-----| :----- | :---------- |
+| ~~actor~~ | [Person](#person) | Deprecated | Replaced by `user`. |
+| user | [Person](#person) | Optional | The [Person](#person) who initiated the [Session](#session). |
+
+#### 3.3.4 SoftwareApplication
+| Property | Type | Disposition | Description |
+| :------ | :-----| :----- | :---------- |
+| version | string | new | Optional | A string value that designates the current form or version of the SoftwareApplication. |
+
+### 3.4 Date/time and duration property values
+The Caliper 1.0 Implementation Guide describes date/time and duration value types inconsistently.  In certain cases the value type is described as a "ISO-8601 timestamp"; in other cases as a "long" integer. The 1.0 `duration` data type is described as an "xsd:duration".
+
+Caliper 1.1 fully embraces the [ISO 8601](#iso8601Def) standard for representing dates and times for all date/time and duration property values.  Caliper 1.1 requires that date/time values MUST be expressed as an ISO 8601 date and time value expressed with millisecond precision. The value MUST be expressed using the format YYYY-MM-DDTHH:mm:ss.SSSZ set to UTC with no offset specified.
+
+If a `duration` time interval is specified the value MUST conform to the ISO 8601 duration format.
+
+In the case of a [MediaEvent](https://github.com/IMSGlobal/caliper-spec/blob/master/caliper-spec.md#mediaEvent) if the `object` of the interaction is an `AudioObject` or `VideoObject`, a `MediaLocation` SHOULD be specified as the `target` value in order to provide the `currentTime` in the audio or video stream that marks the action. If the currentTime is specified, the value MUST be an ISO 8601 formatted duration, e.g., "PT30M54S".
+
+## 3.5 Serialization
+Caliper 1.0 and 1.1 events and entities are serialized as JSON-LD and transmitted within an `Envelope`, a compact JSON data structure. However, new rules govern Caliper 1.1 object serialization.
+
+### 3.5.1 Caliper JSON-LD Context
 The IMS-hosted remote [Caliper JSON-LD Context](http://purl.imsglobal.org/ctx/caliper/v1p1) document that maps Caliper terms to IRIs was rewritten in its entirety for 1.1.
 
-Each Caliper `Event` emitted by an event producer MUST include a `@context` property that references the Caliper 1.1 JSON-LD Context IRI. A Caliper JSON-LD document governed by a single "top-level" context is limited to referencing the [Caliper JSON-LD Context](http://purl.imsglobal.org/ctx/caliper/v1p1) only:
+Each Caliper `Event` emitted by an event producer MUST include a `@context` property that references the Caliper 1.1 JSON-LD Context IRI. A Caliper JSON-LD document that is governed by a single "top-level" context MUST reference the [Caliper JSON-LD Context](http://purl.imsglobal.org/ctx/caliper/v1p1) only:
 
 ```
 {
@@ -50,88 +149,14 @@ The rules governing JSON-LD `@context` keyword usage are described in more detai
 
 If you use a JSON_LD parser to transform Caliper events you should consider caching the referenced Context document(s) locally as [recommended](https://json-ld.org/spec/latest/json-ld-api-best-practices/#cache-context) by the JSON-LD community.
 
-## 3.0 Event model changes
-
-### 3.1 Event property changes
-The following property additions and deprecations apply to all `Event` types.
-
-| Property | Type | Disposition | Description |
-| :------ | :-----| :----- | :---------- |
-| id | UUID | Required | Each [Event](#event) MUST be provisioned with a [UUID](#uuidDef).  The UUID MUST be expressed as a [URN](#urnDef) using the form `urn:uuid:<UUID>` per [RFC 4122](#rfc4122).  A version 4 [UUID](#uuidDef) is recommended. |
-| type | Term | Required | Replaces previous use of the [JSON-LD](#jsonldDef) `@type` keyword. The string value MUST be set to the corresponding [Term](#termDef) rather than the full [IRI](#iriDef), e.g. *MediaEvent*. |
-| ~~@type~~ | [IRI](#iriDef) | Deprecated | Replaced by `type`.  |
-| action | Term | Required | The string value MUST be set to the corresponding [Term](#termDef) rather than the full [IRI](#iriDef), e.g. *Started*. |
-| referrer | [Entity](#entity) &#124; [IRI](#iriDef) | Optional  | An [Entity](#entity) that represents the referring context. A [SoftwareApplication](#softwareApplication) or [DigitalResource](#digitalResource) will typically constitute the referring context.  The `referrer` value MUST be expressed either as an object or as a string corresponding to the referrer's [IRI](#iriDef). In the case of [NavigationEvent](#navigationEvent) `referrer` supersedes the deprecated `navigatedFrom` property.  |
-| session | [Session](#session) &#124; [IRI](#iriDef) | Optional | The current user [Session](#session).  The `session` value MUST be expressed either as an object or as a string corresponding to the session's [IRI](#iriDef). |
-| federatedSession | [LtiSession](#ltiSession) &#124; [IRI](#iriDef) | Optional | Caliper 1.1 changed the value type to [LtiSession](#ltiSession), a sub type of [Session](#session) that includes an LTI-related `messageParameters` property. If the [Event](#event) occurs within the context of an [LTI](#ltiDef) tool launch, the actor's tool consumer [LtiSession](#ltiSession) MAY be referenced.  The `federatedSession` value MUST be expressed either as an object or as a string corresponding to the federatedSession's [IRI](#iriDef).  |
-| extensions | Object | Optional | A map of additional attributes not defined by the model MAY be specified for a more concise representation of the [Event](#event). |
-
-### 3.2 NavigationEvent property changes
-The Caliper 1.0 `NavigationEvent` included a `navigatedFrom` property. It has been deprecated in favor of `referrer` (see above).
-
-| Property | Type | Disposition | Description |
-| :------ | :-----| :----- | :---------- |
-| ~~navigatedFrom~~ | [DigitalResource](#digitalResource), [SoftwareApplication](#softwareApplication) | Deprecated | Replaced by `referrer`. |
-
-## 4.0 Entity model changes
-
-### 4.1 Entity property changes
-The following property additions and deprecations apply to all `Entity` types.
-
-| Property | Type | Disposition | Description |
-| :------ | :-----| :----- | :---------- |
-| id | [IRI](#iriDef) | Required  | A valid [IRI](#iriDef) MUST be specified. The [IRI](#iriDef) MUST be unique and persistent. The [IRI](#iriDef) SHOULD also be dereferenceable, i.e., capable of returning a representation of the resource. A [URI](#uriDef) employing the [URN](#urnDef) scheme MAY be provided in cases where a [Linked Data](#linkedDataDef) friendly HTTP URI is either unavailable or inappropriate. |
-| ~~@id~~ | [IRI](#iriDef) | Deprecated  | Replaced by `id`. |
-| type  | [Term](#termDef) | Required | A string value corresponding to the [Term](#termDef) defined for the [Entity](#entity) in the external IMS Caliper JSON-LD [context](http://purl.imsglobal.org/ctx/caliper/v1p1) document.  For a generic [Entity](#entity) set the `type` value to the term *Entity*.  If a subtype of [Entity](#entity) is created, set the type to the [Term](#termDef) corresponding to the subtype utilized, e.g., *VideoObject*. |
-| ~~@type~~ | [IRI](#iriDef)  | Deprecated | Replaced by `type`. |
-
-### 4.2 DigitalResource property changes
-The following property additions and deprecations apply to all `DigitalResource` types, including `MediaObject`, `AudioObject`, `ImageObject`, and `VideoObject`.
-
-| Property | Type | Disposition | Description |
-| :------ | :-----| :----- | :---------- |
-| ~~alignedLearningObjective~~ | Array | Deprecated | Replaced by `LearningObjectives`. |
-| creators | Array | Optional | An ordered collection of [Agent](#agent) entities, typically of type [Person](#person), that are responsible for bringing resource into being.  Each array item MUST be expressed either as an object or as a string corresponding to the item's [IRI](#iriDef). |
-| learningObjectives | Array | Optional | Replaces the deprecated `alignedLearningObjective`. An ordered collection of one or more [LearningObjective](#learningobjective) entities that describe what a learner is expected to comprehend or accomplish after engaging with the resource.  Each array item MUST be expressed either as an object or as a string corresponding to the item's [IRI](#iriDef). |
-| mediaType | string | Optional | A string value drawn from the list of [IANA](https://www.iana.org/assignments/media-types/media-types.xhtml) approved media types and subtypes that identifies the file format of the resource. |
-| objectType | string | Deprecated | Use `type`. |
-
-### 4.3 MediaLocation property changes
-If a `MediaLocation.currentTime` value is set it MUST take the form of an ISO 8601 formatted duration string set to UTC.
-
-| Property | Type | Disposition | Description |
-| :------ | :-----| :----- | :---------- |
-| currentTime | Duration | Optional | A time interval or duration that represents the current playback position measured from the beginning of an [AudioObject](#audioObject) or [VideoObject](#videoObject).  If a currentTime is specified the value MUST conform to the ISO 8601 duration format. |
-
-### 4.4 Session property changes
-
-| Property | Type | Disposition | Description |
-| :------ | :-----| :----- | :---------- |
-| ~~actor~~ | [Person](#person) | Deprecated | Replaced by `user`. |
-| user | [Person](#person) | Optional | The [Person](#person) who initiated the [Session](#session). |
-
-### 4.5 SoftwareApplication property changes
-| Property | Type | Disposition | Description |
-| :------ | :-----| :----- | :---------- |
-| version | string | new | Optional | A string value that designates the current form or version of the SoftwareApplication. |
-
-### 4.6 Date/time and duration property values
-The Caliper 1.0 Implementation Guide describes date/time and duration value types inconsistently.  In certain cases the values type is described as a "ISO-8601 timestamp"; in other cases as "long". The 1.0 `duration` data type is described as "xsd:duration".
-
-Caliper 1.1 fully embraces the [ISO 8601](#iso8601Def) standard for representing dates and times for all date/time and duration property values.  Caliper 1.1 requires that date/time values MUST be expressed as an ISO 8601 date and time value expressed with millisecond precision. The value MUST be expressed using the format YYYY-MM-DDTHH:mm:ss.SSSZ set to UTC with no offset specified.
-
-If a `duration` time interval is specified the value MUST conform to the ISO 8601 duration format.
-
-In the case of a [MediaEvent](https://github.com/IMSGlobal/caliper-spec/blob/master/caliper-spec.md#mediaEvent) if the `object` of the interaction is an `AudioObject` or `VideoObject`, a `MediaLocation` SHOULD be specified as the `target` value in order to provide the `currentTime` in the audio or video stream that marks the action. If the currentTime is specified, the value MUST be an ISO 8601 formatted duration, e.g., "PT30M54S".
-
-## 5.0 Event and Entity "thinning"
+### 3.5.2 Event and Entity "thinning"
 A Caliper 1.0 `Event` expressed as a JSON-LD document exhibits the following characteristics:
 
 * Each `Entity` described therein as a JSON object is required to include a JSON-LD `@context` property even if the value duplicates the enclosing `Event` context (JSON-LD inheritance rules ignored).
 * All optional `Event` and `Entity` properties must be referenced, even if the value is set to blank (''), empty (\[\]) or null.
 * Caliper terms assigned as property values are expressed as an IRI.
 
-Caliper 1.1 event and entity describe JSON-LD documents are considerably "thinner" than their Caliper 1.0 forebears. The thinning rules for Caliper 1.1 are as follows:
+In contrast, Caliper 1.1 event and entity describe JSON-LD documents are considerably "thinner" than their Caliper 1.0 forebears. The thinning rules for Caliper 1.1 are as follows:
 
 * If an `Event` includes entities with a `@context` value that duplicates the `Event` `@context` property value, the redundant `@context` properties are to be removed prior to serialization (JSON-LD context inheritance rules apply).
 * All `Event` and `Entity` optional properties with a value set to blank (''), empty (\[\]) or null are to be removed prior to serialization.
@@ -144,9 +169,9 @@ Caliper 1.1 event and entity describe JSON-LD documents are considerably "thinne
 
 The Caliper Technical Working Group provides Caliper 1.1 reference implementation libraries written in Java, Javascript, Python, PHP, Ruby, and .Net.  Each library provides thinning capabilities.  For example, the caliper-js 1.1 sensor  [clientUtils.js](https://github.com/IMSGlobal/caliper-js/blob/master/src/clients/clientUtils.js) file includes a replacer function that thins events and entities as part of the serialization process.
 
-Examples of Caliper 1.0 and 1.1 events that illustrate the move to a more compact representation of Caliper events and entities are included below.
+Examples of Caliper 1.0 and 1.1 events that illustrate the move to a more compact representation of events and entities are included below.
 
-## 6.0 Caliper 1.1 Envelope
+## 3.5.3 Caliper 1.1 Envelope
 Caliper 1.1 `Event` and `Entity` data MUST be transmitted inside a Caliper `Envelope`, a purpose-built JSON data structure that includes metadata about the emitting `Sensor` and the data payload.
 
 The Caliper 1.1 [Envelope](#envelope) includes a required `dataVersion` property, the string value for which MUST be set to the Caliper JSON-LD Context IRI:
@@ -161,7 +186,7 @@ The Caliper 1.1 [Envelope](#envelope) includes a required `dataVersion` property
 
 ```
 
-## 7.0 Caliper 1.1 MediaEvent
+## 4.0 Caliper 1.1 MediaEvent
 https://github.com/IMSGlobal/caliper-spec/blob/master/caliper-spec.md#mediaEvent
 
 ## Actions
@@ -188,9 +213,9 @@ The Kaltura JSON-LD Context would resemble the following document:
 }
 ```
 
-### JSON-LD examples
+## Caliper Event JSON-LD examples
 
-#### Caliper 1.0 MediaEvent (resumed)
+### Caliper 1.0 MediaEvent (resumed)
 ```
 {
   "@context": "http://purl.imsglobal.org/ctx/caliper/v1/Context",
@@ -260,8 +285,7 @@ The Kaltura JSON-LD Context would resemble the following document:
 }
 ```
 
-#### Caliper 1.1 MediaEvent (Resumed)
-
+### Caliper 1.1 MediaEvent (Resumed)
 ```
 {
   "@context": "http://purl.imsglobal.org/ctx/caliper/v1/Context",
