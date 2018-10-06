@@ -454,7 +454,7 @@ Note: if this `MediaEvent` is generated as result of an earlier LTI Launch, it s
 
 ## <a name="reference"></a>References
 
-<a name="iso8601'>ISO 8601 Date and time format. URL: https://www.iso.org/iso-8601-date-and-time-format.html
+<a name="iso8601'></a>ISO 8601 Date and time format. URL: https://www.iso.org/iso-8601-date-and-time-format.html
 
 <a name="rfc3987"></a>__RFC 3987__.  IETF. M. Duerst and M. Suignard.  "Internationalized Resource Identifiers (IRIs).  January 2005.  URL: https://www.ietf.org/rfc/rfc3987.txt
 
