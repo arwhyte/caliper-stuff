@@ -258,9 +258,7 @@ the abstract `itemVariable` property that is permitted to be expressed?
 | id | IRI | Required |
 | type | Term | Required |
 | identifier | string | Required |
-| _itemVariable_ | array | Optional.  
-Concrete instance of abstract ItemVariable, ie., `OutcomeVariable`, `ResponseVariable`, 
-`TemplateVariable`. |
+| _itemVariable_ | array | Optional. Concrete instance of abstract ItemVariable, ie., `OutcomeVariable`, `ResponseVariable`, `TemplateVariable`. |
 
 ```json
 {
@@ -287,9 +285,7 @@ the abstract `itemVariable` property that is permitted to be expressed?
 | datestamp | string | Required |
 | sessionStatus | Enum | Required |
 | candidateComment | string | Optional |
-| _itemVariable_ | array | Optional.  
-Concrete instance of abstract ItemVariable, ie., `OutcomeVariable`, `ResponseVariable`, 
-`TemplateVariable`. |
+| _itemVariable_ | array | Optional. Concrete instance of abstract ItemVariable, ie., `OutcomeVariable`, `ResponseVariable`, `TemplateVariable`. |
 
 
 ```json
