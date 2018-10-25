@@ -271,7 +271,7 @@ the abstract `itemVariable` property that is permitted to be expressed?
 ```
 
 ### ItemResult
-QUESTION?: can a `TestResult` include `outcomeVariable`, `responseVariable`, AND 
+QUESTION?: can a `ItemResult` include `outcomeVariable`, `responseVariable`, AND 
 `templateVariable` properties (all three) or is it the case that only a single concrete instance of 
 the abstract `itemVariable` property that is permitted to be expressed?
 
