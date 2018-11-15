@@ -103,7 +103,6 @@ An `AssessmentTest` is comprised of one or more `TestPart` entities.
 ```
 
 ### AssessmentStimulus
-TODO: Is modeling `AssessmentStimulus` required?
 
 | Property | Type | Disposition |
 | :------- | :--- | :---------- |
