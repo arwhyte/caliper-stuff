@@ -202,9 +202,9 @@ An `AssessmentTest` is comprised of one or more `TestPart` entities.
   "type": "TestResult",
   "identifier": "",
   "datestamp": "ISO 8601 DateTime",
-  "outcomeVariable": [{<OutcomeVariable}],
-  "responseVariable": [{<ResponseVariable}],
-  "templateVariable": [{<TemplateVariable}]
+  "outcomeVariable": [{<OutcomeVariable>}],
+  "responseVariable": [{<ResponseVariable>}],
+  "templateVariable": [{<TemplateVariable>}]
 }
 ```
 
@@ -232,9 +232,9 @@ An `AssessmentTest` is comprised of one or more `TestPart` entities.
   "datestamp": "ISO 8601 DateTime",
   "sessionStatus": "final | initial | pendingResponseProcessing | pendingSubmission",
   "candidateComment": "",
-  "outcomeVariable": [{<OutcomeVariable}],
-  "responseVariable": [{<ResponseVariable}],
-  "templateVariable": [{<TemplateVariable}]
+  "outcomeVariable": [{<OutcomeVariable>}],
+  "responseVariable": [{<ResponseVariable>}],
+  "templateVariable": [{<TemplateVariable>}]
 }
 ```
 
