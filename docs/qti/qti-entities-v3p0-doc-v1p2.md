@@ -20,7 +20,7 @@ An `AssessmentTest` is comprised of one or more `TestPart` entities.
 | testPart | array | List of `TestPart` entities. Optional |
 
 
-```json
+```
 {
   "@context": "https://purl.imsglobal.org/spec/qti/v3p0/context/",
   "id": "IRI",
@@ -45,7 +45,7 @@ An `AssessmentTest` is comprised of one or more `TestPart` entities.
 | isPartOf | `AssessmentTest` | Optional |
 | assessmentSectionSelection | `AssessmentSectionSelection` | Optional |
 
-```json
+```
 {
   "@context": "https://purl.imsglobal.org/spec/qti/v3p0/context/",
   "id": "IRI",
@@ -78,7 +78,7 @@ An `AssessmentTest` is comprised of one or more `TestPart` entities.
 | isPartOf | `TestPart` \| `AssessmentSection` | Optional |
 | sectionPart | `SectionPart` | Optional |
 
-```json
+```
 {
   "@context": "https://purl.imsglobal.org/spec/qti/v3p0/context/",
   "id": "IRI",
@@ -113,7 +113,7 @@ An `AssessmentTest` is comprised of one or more `TestPart` entities.
 | label | string | Optional.  Is this title needed? |
 | isPartOf | `AssessmentItem` | Optional |
 
-```json
+```
 {
   "@context": "https://purl.imsglobal.org/spec/qti/v3p0/context/",
   "id": "IRI",
@@ -134,7 +134,7 @@ An `AssessmentTest` is comprised of one or more `TestPart` entities.
 | identifier | string | Required |
 | isPartOf | `TestPart` \| `AssessmentSection` | Optional |
 
-```json
+```
 {
   "@context": "https://purl.imsglobal.org/spec/qti/v3p0/context/",
   "id": "IRI",
@@ -163,7 +163,7 @@ An `AssessmentTest` is comprised of one or more `TestPart` entities.
 | testResult | `TestResult` | Optional |
 | itemResult | array | Optional |
 
-```json
+```
 {
   "@context": "https://purl.imsglobal.org/spec/qti/v2p2/context/",
   "id": "IRI",
@@ -196,7 +196,7 @@ An `AssessmentTest` is comprised of one or more `TestPart` entities.
 | responseVariable | array | One or more `ResponseVariable` entities. Optional. |
 | templateVariable | array | One or more `TemplateVariable` entities. Optional. |
 
-```json
+```
 {
   "id": "IRI",
   "type": "TestResult",
@@ -223,7 +223,7 @@ An `AssessmentTest` is comprised of one or more `TestPart` entities.
 | responseVariable | array | One or more `ResponseVariable` entities. Optional. |
 | templateVariable | array | One or more `TemplateVariable` entities. Optional. |
 
-```json
+```
 {
   "id": "IRI",
   "type": "ItemResult",
@@ -256,7 +256,7 @@ TODO Optional data properties are targets for removal.
 | masteryValue | Double | Optional |
 | value | array | List of `Value` entities. Optional |
 
-```json
+```
 {
   "id": "IRI",
   "type": "OutcomeVariable",
@@ -292,7 +292,7 @@ TODO Optional data properties are targets for removal.
 | correctResponse | CorrectResponse | Optional? |
 | candidateResponse| CandidateResponse | Optional? |
 
-```json
+```
 {
   "id": "IRI",
   "type": "ResponseVariable",
@@ -337,7 +337,7 @@ TODO Optional data properties are targets for removal.
 | baseType | Enum | Optional |
 | value | array | List of `Value` entities. Optional |
 
-```json
+```
 {
   "id": "IRI ",
   "type": "TemplateVariable",
