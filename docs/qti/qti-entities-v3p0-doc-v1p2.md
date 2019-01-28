@@ -22,7 +22,7 @@ An `AssessmentTest` is comprised of one or more `TestPart` entities.
 
 ```
 {
-  "@context": "https://purl.imsglobal.org/spec/qti/v3p0/context/",
+  "@context": ["https://purl.imsglobal.org/spec/qti/v3p0/context/", "http://purl.imsglobal.org/ctx/caliper/v1p1"],
   "id": "IRI",
   "type": "AssessmentTest",
   "identifier": "",
